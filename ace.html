@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>ace-editor with htmx</title>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+	<script src="https://unpkg.com/htmx.org@2.0.2"></script>
+</head>
+
+<body>
+	<a href="/"> Home</a>
+	<h2>Ace Editor + HTMX</h2>
+
+	<form hx-post="/runcode" hx-target="#output" hx-swap="innerHTML" hx-vals='js:{code: getCode()}'>
+		<select id="langselect" name="lang">
+			<option value="golang">Go</option>
+			<option value="c_cpp">C/C++</option>
+			<option value="python">Python</option>
+		</select>
+		<br />
+
+		<button id="submitbtn" name="task" value="run">Submit</button>
+
+	</form>
+
+	<div id="container" style="width: 400px; height: 300px; border: 1px solid grey"></div>
+	<div id="status"></div>
+
+	<div id="settings">
+		Settings <br />
+		<input type="checkbox" id="editingmode"><label for="editingmode">Vim Mode</label> <br />
+		<input type="checkbox" id="relativelineno"><label for="relativelineno">Relative line number</label>
+	</div>
+
+	<hr />
+	<div id="output"></div>
+
+	<script src="https://unpkg.com/ace-builds@1.32.2/src-min-noconflict/ace.js" type="text/javascript"
+		charset="utf-8"></script>
+	<script src="https://unpkg.com/ace-builds@1.32.2/src-min-noconflict/ext-statusbar.js" type="text/javascript"
+		charset="utf-8"></script>
+	<script>
+		// define default codes
+		var goCode = 'package main\n\nfunc main() {\n    fmt.Println("from go")\n}';
+		var cppCode = '#include <stdio>\n#include <stdlib>\n\nint main() {\n    cout << "from cpp" << endl;\n    return 0;\n}';
+		var pythonCode = 'println(\'from py\')';
+
+		const getDefaultCode = function (lang) {
+			switch (String(lang)) {
+				case 'c_cpp':
+					return cppCode;
+				case 'python':
+					return pythonCode;
+				default:
+					// default to Go
+					return goCode;
+			}
+		};
+
+		const setCode = function (lang, code) {
+			switch (String(lang)) {
+				case 'c_cpp':
+					cppCode = code;
+					break;
+				case 'python':
+					pythonCode = code;
+					break;
+				default:
+					// default to Go
+					goCode = code;
+					break;
+			}
+		};
+
+		var editor = ace.edit("container", {fontSize: 14});
+		editor.setTheme("ace/theme/one_dark");
+		editor.session.setMode("ace/mode/golang");
+		editor.session.setValue(getDefaultCode("golang"));
+
+		var StatusBar = ace.require("ace/ext/statusbar").StatusBar;
+		var statusBar = new StatusBar(editor, document.getElementById("status"));
+
+		// language selector
+		var langselectListener = htmx.on("#langselect", "change", function (evt) {
+			const curLang = editor.session.getOption("mode").split('/')[2];
+			setCode(curLang, editor.session.getValue());
+
+			const lang = evt.srcElement.value;
+			editor.session.setMode("ace/mode/" + lang);
+			editor.session.setValue(getDefaultCode(lang));
+		});
+
+		// toggle relative line number
+		var relLineListener = htmx.on("#relativelineno", "change", function (evt) {
+			var opt = false;
+			if (evt.srcElement.checked) {
+				opt = true;
+			}
+			editor.setOptions({relativeLineNumbers: opt});
+		});
+
+		// toggle vim mode
+		var modeListener = htmx.on("#editingmode", "change", function (evt) {
+			if (evt.srcElement.checked) {
+				editor.setKeyboardHandler("ace/keyboard/vim");
+			} else {
+				editor.setKeyboardHandler("");
+			}
+		});
+
+		const getCode = function () {
+			return editor.session.getValue();
+		};
+	</script>
+</body>
+
+</html>
