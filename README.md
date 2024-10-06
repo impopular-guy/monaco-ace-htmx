@@ -19,7 +19,8 @@
 - Refreshing page will wipe out all edited code, this doesn't save anything to localStorage, etc.
 - This version of `monaco-vim` suffers from https://github.com/brijeshb42/monaco-vim/issues/108 .
     This creates lot of inconsistency during loading of the editor. Only around half the time it is successful.
-    **These inconsistency makes it just completely unusable.**
-    It improves a bit if move monaco-vim related code to a separate script tag with `defer`, but it is still bad, at least in my system.
+    **These inconsistencies makes it just completely unusable.**
+    It improves a bit if we move monaco-vim related code to a separate script tag with `defer`, but it's still bad, at least in my system.
+    The editor is fine without vim-mode, so it might be preferable to load monaco-vim only when user asks for vim mode.
 - The vim statusbar for ace editor is not that good, you might need to make your own status bar logic.
 
