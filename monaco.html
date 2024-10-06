@@ -104,24 +104,23 @@
 			return monaco.editor.getModels()[0].getValue()
 		};
 	</script>
-	<script defer>
+	<script>
 		// This section adds additional vim abilities
 		require.config({paths: {'monaco-vim': 'https://unpkg.com/monaco-vim@0.4.1/dist/monaco-vim'}});
 
-		require(['monaco-vim'], function (MonacoVim) {
-			// toggle vimmode
-			const editor = monaco.editor.getEditors()[0];
-			var vimMode;
-			var modeListener = htmx.on("#editingmode", "change", function (evt) {
-				if (evt.srcElement.checked) {
+		var vimMode;
+		var modeListener = htmx.on("#editingmode", "change", function (evt) {
+			if (evt.srcElement.checked) {
+				require(['monaco-vim'], function (MonacoVim) {
+					const editor = monaco.editor.getEditors()[0];
 					var statusLine = document.getElementById('status');
 					vimMode = MonacoVim.initVimMode(editor, statusLine);
-				} else {
-					if (vimMode !== undefined) {
-						vimMode.dispose();
-					}
+				});
+			} else {
+				if (vimMode !== undefined) {
+					vimMode.dispose();
 				}
-			});
+			}
 		});
 	</script>
 </body>
