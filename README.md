@@ -1,4 +1,4 @@
-# Monaco-Editor + HTMX
+# Monaco/Ace + HTMX
 
 - Uses
     - [Go 1.23.0](https://go.dev/)
